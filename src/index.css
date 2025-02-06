@@ -11,3 +11,96 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+
+ /* Sidebar */
+.app {
+  display: flex;
+  height: auto;
+  min-height: 100vh;
+  background-color: #e8efff;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin: 10px 0;
+}
+
+.sidebar nav ul li a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+
+/* Navbar container */
+.navbar {
+  background-color: #2c3e50;
+  /* Blue background */
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* User info section */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Welcome message */
+.navbar h3 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  text-align: left;
+}
+
+/* Email text under the username */
+.user-email {
+  font-size: 14px;
+  color: #ecf0f1;
+  margin-top: 5px;
+}
+
+/* Additional styling for responsiveness (optional) */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px;
+  }
+
+  .navbar h3 {
+    font-size: 20px;
+  }
+
+  .user-email {
+    font-size: 12px;
+  }
+}
