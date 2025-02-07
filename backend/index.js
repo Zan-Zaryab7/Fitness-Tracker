@@ -24,6 +24,7 @@ app.get("/", (req, resp) => {
 });
 
 //
+//
 // Schema for users
 const UserSchema = new mongoose.Schema({
     name: {
@@ -126,6 +127,8 @@ app.post("/login", async (req, resp) => {
     }
 });
 
+
+//
 //
 // Workout Schema
 const WorkoutSchema = new mongoose.Schema({
@@ -235,6 +238,50 @@ app.delete("/delete/workout/:id", async (req, res) => {
         res.status(500).json({ error: "Error deleting workout" });
     }
 });
+
+
+//
+//
+// Nutritions Schema
+const NutritionSchema = new mongoose.Schema({
+    food_name: {
+        type: String,
+        required: true
+    },
+    calories: {
+        type: Number,
+        required: true
+    },
+    protein: {
+        type: Number,
+        required: true
+    },
+    carbs: {
+        type: Number,
+        required: true
+    },
+    fat: {
+        type: Number,
+        required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now,
+    },
+});
+// Nutritions Model
+const Nutrition = mongoose.model("Nutritions", NutritionSchema);
+
+// Add Nutrition API Methods
+app.post("/add/nutrition", async (req, res) => {
+    try {
+        await Nutrition.insertMany(req.body.nutritionList);
+        res.status(201).send({ message: "Nutrition data added successfully!" });
+    } catch (error) {
+        res.status(500).send({ error: "Failed to add nutrition data." });
+    }
+});
+
 
 
 app.listen(5000, () => {

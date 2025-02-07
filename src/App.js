@@ -7,6 +7,7 @@ import Dashboard from './Components/Dashboard/Dashboard';
 import WorkoutTracker from './Components/Dashboard/Workout/WorkoutTracker';
 import AddWorkout from './Components/Dashboard/Workout/AddWorkout';
 import EditWorkout from './Components/Dashboard/Workout/EditWorkout';
+import AddNutrition from './Components/Dashboard/Nutritions/AddNutritions';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/addworkout" element={<AddWorkout />} />
         <Route path="/workouttracker" element={<WorkoutTracker />} />
         <Route path="/editworkout/:id" element={<EditWorkout />} />
+        <Route path="/addnutritions" element={<AddNutrition />} />
       </Routes>
     </BrowserRouter>
   );

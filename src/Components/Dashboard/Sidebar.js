@@ -37,6 +37,9 @@ const Sidebar = () => {
                         <Button color="inherit" component={Link} to='/workouttracker'>Workout Tracker</Button>
                     </li>
                     <li>
+                        <Button color="inherit" component={Link} to='/addnutritions'>Add Nutritions</Button>
+                    </li>
+                    <li>
                         <Button color="inherit" onClick={handleLogout}>Logout</Button>
                     </li>
                 </ul>
