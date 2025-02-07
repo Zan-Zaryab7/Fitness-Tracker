@@ -4,8 +4,9 @@ import Home from './Components/Home';
 import { Signup } from './Components/Signup';
 import { Login } from './Components/Login';
 import Dashboard from './Components/Dashboard/Dashboard';
-import AddWorkout from './Components/Dashboard/AddWorkout';
-import WorkoutTracker from './Components/Dashboard/WorkoutTracker';
+import WorkoutTracker from './Components/Dashboard/Workout/WorkoutTracker';
+import AddWorkout from './Components/Dashboard/Workout/AddWorkout';
+import EditWorkout from './Components/Dashboard/Workout/EditWorkout';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/addworkout" element={<AddWorkout />} />
         <Route path="/workouttracker" element={<WorkoutTracker />} />
+        <Route path="/editworkout/:id" element={<EditWorkout />} />
       </Routes>
     </BrowserRouter>
   );

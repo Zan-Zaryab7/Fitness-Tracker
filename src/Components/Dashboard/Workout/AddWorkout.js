@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Container, TextField, Button, Typography, Grid } from "@mui/material";
-import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
+import Sidebar from "../Sidebar";
+import Navbar from "../Navbar";
 import { useNavigate } from "react-router-dom";
 
 export default function AddWorkout() {

@@ -174,18 +174,65 @@ app.post("/create/workout", async (req, res) => {
 });
 
 //
-// Fetch workouts by username API Method
-app.get("/fetch/workouts", async (req, res) => {
+// Fetch workouts by username in Date Group API Method
+app.get("/fetch/workouts/grouped", async (req, res) => {
     try {
         const { username } = req.query;
-        if (!username) {
-            return res.status(400).json({ error: "Username is required" });
-        }
-        const workouts = await Workout.find({ username });
-        res.json(workouts);
+        const workouts = await Workout.find({ username }).sort({ date: -1 });
+
+        const groupedWorkouts = workouts.reduce((acc, workout) => {
+            const date = new Date(workout.date).toDateString();
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(workout);
+            return acc;
+        }, {});
+
+        res.json(groupedWorkouts);
     } catch (error) {
-        console.error("Error fetching workouts:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Error fetching grouped workouts:", error);
+        res.status(500).send("Server error");
+    }
+});
+
+//
+// Fetch workout by ID API Method
+app.get("/workout/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const workout = await Workout.findById(id);
+        if (!workout) {
+            return res.status(404).json({ error: "Workout not found" });
+        }
+        res.status(200).json(workout);
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching workout" });
+    }
+});
+
+//
+// Edit Workout API Method
+app.put("/edit/workout/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedWorkout = await Workout.findByIdAndUpdate(id, req.body, { new: true });
+        if (!updatedWorkout) {
+            return res.status(404).json({ error: "Workout not found" });
+        }
+        res.status(200).json(updatedWorkout);
+    } catch (error) {
+        res.status(500).json({ error: "Error updating workout" });
+    }
+});
+
+//
+// Delete Workout API Method
+app.delete("/delete/workout/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Workout.findByIdAndDelete(id);
+        res.status(200).json({ message: "Workout deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Error deleting workout" });
     }
 });
 
