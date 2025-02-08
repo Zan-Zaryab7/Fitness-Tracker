@@ -8,6 +8,8 @@ import WorkoutTracker from './Components/Dashboard/Workout/WorkoutTracker';
 import AddWorkout from './Components/Dashboard/Workout/AddWorkout';
 import EditWorkout from './Components/Dashboard/Workout/EditWorkout';
 import AddNutrition from './Components/Dashboard/Nutritions/AddNutritions';
+import NutritionTracker from './Components/Dashboard/Nutritions/NutritionTracker';
+import EditNutrition from './Components/Dashboard/Nutritions/EditNutrition';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/workouttracker" element={<WorkoutTracker />} />
         <Route path="/editworkout/:id" element={<EditWorkout />} />
         <Route path="/addnutritions" element={<AddNutrition />} />
+        <Route path="/nutritionstracker" element={<NutritionTracker />} />
+        <Route path="/editnutrition/:id" element={<EditNutrition />} />
       </Routes>
     </BrowserRouter>
   );

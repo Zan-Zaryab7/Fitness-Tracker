@@ -244,6 +244,14 @@ app.delete("/delete/workout/:id", async (req, res) => {
 //
 // Nutritions Schema
 const NutritionSchema = new mongoose.Schema({
+    user_name: {
+        type: String,
+        required: true
+    },
+    quantity: {
+        type: Number,
+        required: true
+    },
     food_name: {
         type: String,
         required: true
@@ -252,15 +260,15 @@ const NutritionSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    protein: {
+    protein_g: {
         type: Number,
         required: true
     },
-    carbs: {
+    carbohydrates_g: {
         type: Number,
         required: true
     },
-    fat: {
+    fat_g: {
         type: Number,
         required: true
     },
@@ -272,13 +280,116 @@ const NutritionSchema = new mongoose.Schema({
 // Nutritions Model
 const Nutrition = mongoose.model("Nutritions", NutritionSchema);
 
-// Add Nutrition API Methods
+//
+// Add Nutritions API Method
 app.post("/add/nutrition", async (req, res) => {
+    const nutritionData = req.body.nutritionData;
+
     try {
-        await Nutrition.insertMany(req.body.nutritionList);
-        res.status(201).send({ message: "Nutrition data added successfully!" });
+        // Save the nutrition data to MongoDB
+        const savedData = await Nutrition.insertMany(nutritionData);
+        res.status(200).json({ message: "Data saved successfully", savedData });
     } catch (error) {
-        res.status(500).send({ error: "Failed to add nutrition data." });
+        console.error("Error saving data:", error);
+        res.status(500).json({ message: "Error saving data" });
+    }
+});
+
+//
+// Fetch nutritions by username in Date Group API Method
+app.get("/fetch/nutrition/grouped", async (req, res) => {
+    try {
+        const { username } = req.query;  // Change this from user_name to username to match frontend
+        if (!username) {
+            return res.status(400).json({ error: "Username is required" });
+        }
+
+        const nutritionData = await Nutrition.find({ user_name: username }).sort({ date: -1 });
+
+        // Group by date
+        const groupedNutrition = nutritionData.reduce((acc, item) => {
+            const date = new Date(item.date).toDateString();
+            if (!acc[date]) acc[date] = [];
+            acc[date].push(item);
+            return acc;
+        }, {});
+
+        res.json(groupedNutrition);
+    } catch (error) {
+        console.error("Error fetching grouped nutrition data:", error);
+        res.status(500).send("Server error");
+    }
+});
+
+
+
+//
+// fetch a nutrition record by its ID
+app.get('/getbyId/nutrition/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the nutrition record by ID
+        const nutrition = await Nutrition.findById(id);
+
+        // If no record is found, return a 404 error
+        if (!nutrition) {
+            return res.status(404).json({ message: "Nutrition record not found" });
+        }
+
+        // Return the nutrition record as a response
+        res.status(200).json(nutrition);
+    } catch (error) {
+        console.error("Error fetching nutrition record:", error);
+        res.status(500).send("Server error");
+    }
+});
+
+//
+// Edit a nutrition record by its ID
+app.put('/edit/nutrition/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { food_name, quantity, calories, protein_g, carbohydrates_g, fat_g } = req.body;
+
+        // Find the nutrition record by ID and update it
+        const updatedNutrition = await Nutrition.findByIdAndUpdate(id, {
+            food_name,
+            quantity,
+            calories,
+            protein_g,
+            carbohydrates_g,
+            fat_g
+        }, { new: true });
+
+        if (!updatedNutrition) {
+            return res.status(404).json({ message: "Nutrition record not found" });
+        }
+
+        res.status(200).json(updatedNutrition);
+    } catch (error) {
+        console.error("Error updating nutrition record:", error);
+        res.status(500).send("Server error");
+    }
+});
+
+//
+// DELETE nutritions record by its ID API Method
+app.delete('/delete/nutrition/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the nutrition record by ID and delete it
+        const deletedRecord = await Nutrition.findByIdAndDelete(id);
+
+        if (!deletedRecord) {
+            return res.status(404).json({ message: "Nutrition record not found" });
+        }
+
+        res.status(200).json({ message: "Nutrition record deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting nutrition record:", error);
+        res.status(500).send("Server error");
     }
 });
 

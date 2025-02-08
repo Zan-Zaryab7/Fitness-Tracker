@@ -48,7 +48,7 @@ export default function AddWorkout() {
             <div className="main-content">
                 <Navbar />
                 <Container sx={{ marginTop: 5 }}>
-                    <Typography variant="h4" gutterBottom>Workout Tracker</Typography>
+                    <Typography variant="h4" gutterBottom>Add Workout</Typography>
                     <Grid container spacing={2}>
                         <Grid item xs={6}><TextField label="Exercise Name" name="name" fullWidth value={name} onChange={(e) => setName(e.target.value)} /></Grid>
                         <Grid item xs={3}><TextField label="Sets" name="sets" type="number" fullWidth inputProps={{ min: 0 }} value={sets} onChange={(e) => setSets(e.target.value)} /></Grid>
