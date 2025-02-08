@@ -4,14 +4,41 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
-import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import { LineChart, Line, PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 // Define Colors for Each Macro
 const COLORS = ["#FF5733", "#33FF57", "#3385FF", "#FF33A8"];
 
 export default function Dashboard() {
+    // Navigate var for Navigating Routes
     const navigate = useNavigate();
+    // Get UserName From LocalStorage
     const username = localStorage.getItem("userName");
+
+    // State for Progress
+    const [progressData, setProgressData] = useState([]);
+
+    // Fetch Progress from api by username
+    useEffect(() => {
+        const fetchProgressData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/fetch/progress?username=${username}`);
+                setProgressData(response.data);
+            } catch (error) {
+                console.error("Error fetching progress data:", error);
+            }
+        };
+        fetchProgressData();
+    }, [username]);
+
+    // Fetching Progress data with clear Date
+    const formattedProgressData = progressData.length > 0
+        ? progressData.map(item => ({
+            ...item,
+            date: new Date(item.date).toISOString().split("T")[0], // Format the date
+        }))
+        : []; // Empty array if no data
+
 
     // State for Workouts
     const [workouts, setWorkouts] = useState({});
@@ -139,37 +166,90 @@ export default function Dashboard() {
                         Fitness Dashboard
                     </Typography>
 
-                    {/* ✅ PIE CHART FOR TOTAL NUTRITION */}
-                    <Box sx={{ textAlign: "left", padding: 3, borderRadius: 2 }}>
+                    <Box sx={{ padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD" }}>
                         <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
-                            Total Nutrition Breakdown
+                            Weight & Body Fat Over Time
                         </Typography>
-                        {isDataEmpty ? (
-                            <>
-                                <PieChart width={300} height={300}>
-                                    <Pie data={[{ value: 1 }]} cx="50%" cy="50%" outerRadius={100} fill="#d3d3d3" />
-                                </PieChart>
-                                <Typography sx={{ color: "#999" }}>No data available</Typography>
-                            </>
-                        ) : (
-                            <PieChart width={300} height={300}>
-                                <Pie
-                                    data={pieChartData}
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={100}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                    label
-                                >
-                                    {pieChartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index]} />
-                                    ))}
-                                </Pie>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <LineChart data={formattedProgressData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis />
                                 <Tooltip />
                                 <Legend />
-                            </PieChart>
-                        )}
+                                <Line type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (kg)" />
+                                <Line type="monotone" dataKey="bodyFat" stroke="#82ca9d" name="Body Fat (%)" />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </Box>
+
+                    <Box sx={{ padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD", marginTop: 3 }}>
+                        <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
+                            Performance Progress
+                        </Typography>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={formattedProgressData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="metricType" fill="#4C6F7B" name={progressData.metricType} />
+                                <Bar dataKey="metricValue" fill="#4C6F7B" name={progressData.metricType} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </Box>
+
+
+
+                    {/* ✅ PIE CHART FOR TOTAL NUTRITION */}
+                    <Box sx={{ display: "flex", justifyContent: "space-between", gap: 5, padding: 3, borderRadius: 2 }}>
+                        {/* Left: Bar Chart */}
+                        <Box sx={{ textAlign: "left", padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD" }}>
+                            <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
+                                Total Nutrition Overview
+                            </Typography>
+
+                            {isDataEmpty ? (
+                                <Typography sx={{ color: "#999" }}>No data available</Typography>
+                            ) : (
+                                <ResponsiveContainer width={300} height={250}>
+                                    <BarChart data={pieChartData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="name" />
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Bar dataKey="value" fill="#4C6F7B" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
+                        </Box>
+
+                        {/* Right: Pie Chart */}
+                        <Box sx={{ textAlign: "left", padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD" }}>
+                            <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
+                                Total Nutrition Breakdown
+                            </Typography>
+
+                            {isDataEmpty ? (
+                                <>
+                                    <PieChart width={300} height={300}>
+                                        <Pie data={[{ value: 1 }]} cx="50%" cy="50%" outerRadius={100} fill="#d3d3d3" />
+                                    </PieChart>
+                                    <Typography sx={{ color: "#999" }}>No data available</Typography>
+                                </>
+                            ) : (
+                                <PieChart width={300} height={300}>
+                                    <Pie data={pieChartData} cx="50%" cy="50%" outerRadius={100} dataKey="value" label>
+                                        {pieChartData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                    <Legend />
+                                </PieChart>
+                            )}
+                        </Box>
                     </Box>
 
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: 'start', gap: 2 }}>

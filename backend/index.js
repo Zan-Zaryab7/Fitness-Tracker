@@ -321,8 +321,6 @@ app.get("/fetch/nutrition/grouped", async (req, res) => {
     }
 });
 
-
-
 //
 // fetch a nutrition record by its ID
 app.get('/getbyId/nutrition/:id', async (req, res) => {
@@ -394,6 +392,103 @@ app.delete('/delete/nutrition/:id', async (req, res) => {
 });
 
 
+//
+// Progress Schema
+const ProgressSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true
+    },
+    weight: {
+        type: Number,
+        required: true
+    },
+    bodyFat: {
+        type: Number,
+        required: true
+    },
+    chest: {
+        type: Number,
+        required: true
+    },
+    waist: {
+        type: Number,
+        required: true
+    },
+    thighs: {
+        type: Number,
+        required: true
+    },
+    arms: {
+        type: Number,
+        required: true
+    },
+    metricType: {
+        type: String,
+        required: true
+    },
+    metricValue: {
+        type: Number,
+        required: true
+    },
+    date: {
+        type: Date,
+        default: Date.now,
+    },
+}, { timestamps: true });
+// Progress Model
+const Progress = mongoose.model('Progress', ProgressSchema);
+
+//
+// Add Progress Controller API Method
+app.post("/add/progress", async (req, res) => {
+    try {
+        const {
+            username,
+            weight,
+            bodyFat,
+            chest,
+            waist,
+            thighs,
+            arms,
+            metricType,
+            metricValue
+        } = req.body;
+
+        if (!username || !weight) {
+            return res.status(400).json({ message: "Username and Weight are required." });
+        }
+
+        const newProgress = new Progress({
+            username,
+            weight,
+            bodyFat,
+            chest,
+            waist,
+            thighs,
+            arms,
+            metricType,
+            metricValue
+        });
+
+        await newProgress.save();
+        res.status(201).json({ message: "Progress recorded successfully!" });
+    } catch (error) {
+        console.error("Error saving progress:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// Fetch Progress Data for a User
+app.get("/fetch/progress", async (req, res) => {
+    const { username } = req.query;
+    try {
+        const progressData = await Progress.find({ username }).sort({ date: 1 });
+        res.json(progressData);
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching progress data" });
+    }
+});
 
 app.listen(5000, () => {
     console.log("App listen at port 5000");
