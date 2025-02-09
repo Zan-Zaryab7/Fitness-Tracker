@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Container, TextField, Typography, List, ListItem, ListItemText, Button } from "@mui/material";
+import { Container, TextField, Typography, List, ListItem, ListItemText, Button, MenuItem } from "@mui/material";
 import Sidebar from "../Sidebar";
 import Navbar from "../Navbar";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -10,6 +10,7 @@ const genAI = new GoogleGenerativeAI("AIzaSyB39a5LZpnAdmsZkej1EbJCUsZQl-SZGp8");
 const AddNutrition = () => {
     const [foodItems, setFoodItems] = useState("");
     const [nutritionData, setNutritionData] = useState([]);
+    const [mealType, setMealType] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [userName, setUserName] = useState(null);
@@ -85,7 +86,8 @@ const AddNutrition = () => {
                 calories: handleNaN(calories, 0) * quantity, // Default to 0 if NaN
                 protein_g: handleNaN(protein_g, 0) * quantity, // Default to 0 if NaN
                 carbohydrates_g: handleNaN(carbohydrates_g, 0) * quantity, // Default to 0 if NaN
-                fat_g: handleNaN(fat_g, 0) * quantity // Default to 0 if NaN
+                fat_g: handleNaN(fat_g, 0) * quantity, // Default to 0 if NaN
+                mealType: mealType, // MealType (eg: "Breakfast", "Lunch")
             });
         }
 
@@ -114,11 +116,30 @@ const AddNutrition = () => {
         }
     };
 
+    const mealTypes = [
+        "Breakfast",
+        "Morning Snack",
+        "Lunch",
+        "Afternoon Snack",
+        "Dinner",
+        "Evening Snack",
+        "Pre-Workout",
+        "Post-Workout",
+        "Late Night Snack"
+    ];
+
+
     const handleSaveData = () => {
+        if (!mealType) {
+            alert("Please select a meal type.");
+            return;
+        }
+
         if (nutritionData.length > 0) {
             saveNutritionDataToBackend(nutritionData);
             setFoodItems("");
             setNutritionData([]);
+            setMealType("");
 
             navigate('/nutritionstracker');
         } else {
@@ -145,6 +166,21 @@ const AddNutrition = () => {
                     <Typography variant="h4" gutterBottom>
                         Add Nutrition
                     </Typography>
+                    <TextField
+                        select
+                        label="Meal Type"
+                        value={mealType}
+                        onChange={(e) => setMealType(e.target.value)}
+                        fullWidth
+                        sx={{ marginBottom: 2 }}
+                    >
+                        {mealTypes.map((type) => (
+                            <MenuItem key={type} value={type}>
+                                {type}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+
                     <TextField
                         label="Enter Food Items (e.g., 1 apple, 4 eggs)"
                         fullWidth

@@ -138,21 +138,77 @@ const WorkoutSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: function () {
+            return [
+                "Strength Training",
+                "Powerlifting",
+                "Weightlifting",
+                "Bodybuilding",
+                "Cardio",
+                "Endurance",
+                "HIIT",
+                "Cycling",
+                "Running"
+            ].includes(this.category);
+        }
     },
     sets: {
         type: Number,
-        required: true
+        required: function () {
+            return [
+                "Strength Training",
+                "Powerlifting",
+                "Weightlifting",
+                "Bodybuilding",
+                "Sports-Specific Training"
+            ].includes(this.category);
+        }
     },
     reps: {
         type: Number,
-        required: true
+        required: function () {
+            return ["Strength Training",
+                "Powerlifting",
+                "Weightlifting",
+                "Bodybuilding",
+                "Sports-Specific Training"
+            ].includes(this.category);
+        }
     },
     weight: {
         type: Number,
+        required: function () {
+            return [
+                "Strength Training",
+                "Powerlifting",
+                "Weightlifting",
+                "Bodybuilding"
+            ].includes(this.category);
+        }
+    },
+    time: {
+        type: Number,
+        required: function () {
+            return [
+                "Cardio",
+                "Endurance",
+                "HIIT",
+                "Cycling",
+                "Running",
+                "Yoga",
+                "Pilates",
+                "Flexibility",
+                "Rehabilitation"
+            ].includes(this.category);
+        }
+    },
+    yogaName: String,
+    sportName: String,
+    notes: {
+        type: String,
         required: true
     },
-    notes: {
+    category: {
         type: String,
         required: true
     },
@@ -177,20 +233,25 @@ app.post("/create/workout", async (req, res) => {
 });
 
 //
-// Fetch workouts by username in Date Group API Method
+// Fetch users workouts by Category API Method
 app.get("/fetch/workouts/grouped", async (req, res) => {
     try {
         const { username } = req.query;
         const workouts = await Workout.find({ username }).sort({ date: -1 });
 
-        const groupedWorkouts = workouts.reduce((acc, workout) => {
+        // Group by category first, then by date
+        const categorizedWorkouts = workouts.reduce((acc, workout) => {
+            const category = workout.category;
             const date = new Date(workout.date).toDateString();
-            if (!acc[date]) acc[date] = [];
-            acc[date].push(workout);
+
+            if (!acc[category]) acc[category] = {};  // Initialize category group
+            if (!acc[category][date]) acc[category][date] = [];  // Initialize date group
+
+            acc[category][date].push(workout);
             return acc;
         }, {});
 
-        res.json(groupedWorkouts);
+        res.json(categorizedWorkouts);
     } catch (error) {
         console.error("Error fetching grouped workouts:", error);
         res.status(500).send("Server error");
@@ -272,6 +333,21 @@ const NutritionSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    mealType: {
+        type: String,
+        required: true,
+        enum: [
+            "Breakfast",
+            "Morning Snack",
+            "Lunch",
+            "Afternoon Snack",
+            "Dinner",
+            "Evening Snack",
+            "Pre-Workout",
+            "Post-Workout",
+            "Late Night Snack"
+        ]
+    }, // New Field
     date: {
         type: Date,
         default: Date.now,
@@ -320,6 +396,26 @@ app.get("/fetch/nutrition/grouped", async (req, res) => {
         res.status(500).send("Server error");
     }
 });
+
+//
+// Fetch nutritions for Chart of Current Day
+app.get("/fetch/nutrition/today", async (req, res) => {
+    try {
+        const username = req.query.username;
+        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+
+        const nutritionRecords = await Nutrition.find({
+            username,
+            date: { $gte: new Date(today), $lt: new Date(today + "T23:59:59.999Z") }
+        });
+
+        res.json({ [today]: nutritionRecords });
+    } catch (error) {
+        console.error("Error fetching today's nutrition data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 
 //
 // fetch a nutrition record by its ID

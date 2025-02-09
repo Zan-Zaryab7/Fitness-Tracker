@@ -95,6 +95,7 @@ const NutritionTracker = () => {
                                     <Table sx={{ backgroundColor: '#2c3e50' }}>
                                         <TableHead>
                                             <TableRow>
+                                                <TableCell sx={{ color: '#fff' }}>Meal Type</TableCell>
                                                 <TableCell sx={{ color: '#fff' }}>Food Name</TableCell>
                                                 <TableCell sx={{ color: '#fff' }}>Quantity</TableCell>
                                                 <TableCell sx={{ color: '#fff' }}>Calories</TableCell>
@@ -107,6 +108,7 @@ const NutritionTracker = () => {
                                         <TableBody>
                                             {nutritionData[date].map(item => (
                                                 <TableRow key={item._id}>
+                                                    <TableCell sx={{ color: '#fff' }}>{item.mealType}</TableCell>
                                                     <TableCell sx={{ color: '#fff' }}>{item.food_name}</TableCell>
                                                     <TableCell sx={{ color: '#fff' }}>{item.quantity}</TableCell>
                                                     <TableCell sx={{ color: '#fff' }}>{limitValue(item.calories)}</TableCell>
@@ -134,6 +136,7 @@ const NutritionTracker = () => {
                                             {/* Add total row */}
                                             <TableRow>
                                                 <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Total</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}></TableCell>
                                                 <TableCell sx={{ color: '#fff' }}></TableCell>
                                                 <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>{totals.calories.toFixed(2)}</TableCell>
                                                 <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>{totals.protein_g.toFixed(2)}</TableCell>
