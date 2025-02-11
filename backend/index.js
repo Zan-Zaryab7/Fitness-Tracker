@@ -301,6 +301,8 @@ app.delete("/delete/workout/:id", async (req, res) => {
 });
 
 
+
+
 //
 //
 // Nutritions Schema
@@ -416,7 +418,6 @@ app.get("/fetch/nutrition/today", async (req, res) => {
     }
 });
 
-
 //
 // fetch a nutrition record by its ID
 app.get('/getbyId/nutrition/:id', async (req, res) => {
@@ -486,6 +487,8 @@ app.delete('/delete/nutrition/:id', async (req, res) => {
         res.status(500).send("Server error");
     }
 });
+
+
 
 
 //

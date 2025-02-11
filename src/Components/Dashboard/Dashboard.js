@@ -88,46 +88,6 @@ export default function Dashboard() {
         fetchNutritionData();
     }, [username]);
 
-    /** Delete a Workout */
-    const handleDeleteWorkout = async (id) => {
-        try {
-            await axios.delete(`http://localhost:5000/delete/workout/${id}`);
-
-            // Fetch updated workouts again
-            const response = await axios.get(`http://localhost:5000/fetch/workouts/grouped?username=${username}`);
-            setWorkouts(response.data);
-        } catch (error) {
-            console.error("Error deleting workout:", error);
-        }
-    };
-
-    /** Delete a Nutrition Entry */
-    const handleDeleteNutrition = async (id) => {
-        try {
-            await axios.delete(`http://localhost:5000/delete/nutrition/${id}`);
-            setNutritionData((prevData) => {
-                const updatedData = { ...prevData };
-                for (const date in updatedData) {
-                    updatedData[date] = updatedData[date].filter(item => item._id !== id);
-                    if (updatedData[date].length === 0) delete updatedData[date];
-                }
-                return updatedData;
-            });
-        } catch (error) {
-            console.error("Error deleting nutrition data:", error);
-        }
-    };
-
-    /** Edit Workout */
-    const handleEditWorkout = (id) => {
-        navigate(`/editworkout/${id}`);
-    };
-
-    /** Edit Nutrition Entry */
-    const handleEditNutrition = (id) => {
-        navigate(`/editnutrition/${id}`);
-    };
-
     /** Calculate Total Nutrition Per Day */
     const calculateDailyTotals = (date) => {
         const dailyItems = nutritionData[date] || [];
@@ -273,12 +233,7 @@ export default function Dashboard() {
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: 'start', gap: 2 }}>
                         {/* Workout Tracker */}
                         <Box sx={{ marginBottom: 5 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Typography variant="h4" sx={{ marginBottom: 2 }}>Workout Tracker</Typography>
-                                <Button onClick={() => navigate('/addworkout')} variant="contained" sx={{ backgroundColor: "#2c3e50" }}>
-                                    Add Workout
-                                </Button>
-                            </Box>
+                            <Typography variant="h4" sx={{ marginBottom: 2 }}>Workout Tracker</Typography>
                             {Object.keys(workouts).length === 0 ? (
                                 <Typography variant="h6" sx={{ color: "#2c3e50", textAlign: "left", marginTop: 5 }}>
                                     No workouts found. Start adding your workouts! <Button onClick={() => navigate('/addworkout')} sx={{ backgroundColor: "transparent" }}>Add Workout</Button>
@@ -330,7 +285,6 @@ export default function Dashboard() {
                                                             )}
 
                                                             <TableCell sx={{ color: '#fff' }}>Notes</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>Actions</TableCell>
                                                         </TableRow>
                                                     </TableHead>
                                                     <TableBody>
@@ -377,22 +331,6 @@ export default function Dashboard() {
                                                                 )}
 
                                                                 <TableCell sx={{ color: '#fff' }}>{workout.notes}</TableCell>
-                                                                <TableCell sx={{ color: '#fff' }}>
-                                                                    <Button
-                                                                        onClick={() => handleEditWorkout(workout._id)}
-                                                                        variant="contained"
-                                                                        style={{ backgroundColor: "#4C6F7B", color: "white", marginRight: 8 }}
-                                                                    >
-                                                                        Edit
-                                                                    </Button>
-                                                                    <Button
-                                                                        onClick={() => handleDeleteWorkout(workout._id)}
-                                                                        variant="contained"
-                                                                        style={{ backgroundColor: "#4C6F7B", color: "white" }}
-                                                                    >
-                                                                        Delete
-                                                                    </Button>
-                                                                </TableCell>
                                                             </TableRow>
                                                         ))}
                                                     </TableBody>
@@ -406,14 +344,9 @@ export default function Dashboard() {
 
                         {/* Nutrition Tracker */}
                         <Box>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Typography sx={{ color: "#2c3e50", marginBottom: 2, fontSize: 34 }}>
-                                    Nutrition Tracker
-                                </Typography>
-                                <Button onClick={() => navigate('/addnutritions')} variant="contained" sx={{ marginBottom: 2.5, backgroundColor: "#2c3e50" }}>
-                                    Add Nutrition
-                                </Button>
-                            </Box>
+                            <Typography sx={{ color: "#2c3e50", marginBottom: 2, fontSize: 34 }}>
+                                Nutrition Tracker
+                            </Typography>
                             {Object.keys(nutritionData).map(date => {
                                 const totals = calculateDailyTotals(date);
                                 return (
@@ -430,13 +363,11 @@ export default function Dashboard() {
                                                         <TableCell sx={{ color: '#fff' }}>Protein (g)</TableCell>
                                                         <TableCell sx={{ color: '#fff' }}>Carbs (g)</TableCell>
                                                         <TableCell sx={{ color: '#fff' }}>Fat (g)</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>Actions</TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
                                                     <TableRow>
                                                         <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Total</TableCell>
-                                                        <TableCell></TableCell>
                                                         <TableCell></TableCell>
                                                         <TableCell sx={{ color: '#fff' }}>{totals.calories.toFixed(2)}</TableCell>
                                                         <TableCell sx={{ color: '#fff' }}>{totals.protein_g.toFixed(2)}</TableCell>
@@ -455,10 +386,6 @@ export default function Dashboard() {
                                                             <TableCell sx={{ color: '#fff' }}>{item.protein_g.toFixed(2)}</TableCell>
                                                             <TableCell sx={{ color: '#fff' }}>{item.carbohydrates_g.toFixed(2)}</TableCell>
                                                             <TableCell sx={{ color: '#fff' }}>{item.fat_g.toFixed(2)}</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>
-                                                                <Button onClick={() => handleEditNutrition(item._id)} variant="contained" sx={{ marginBottom: .4, marginRight: .4, backgroundColor: "#4C6F7B" }}>Edit</Button>
-                                                                <Button onClick={() => handleDeleteNutrition(item._id)} variant="contained" sx={{ backgroundColor: "#4C6F7B" }}>Delete</Button>
-                                                            </TableCell>
                                                         </TableRow>
                                                     ))}
                                                 </TableBody>

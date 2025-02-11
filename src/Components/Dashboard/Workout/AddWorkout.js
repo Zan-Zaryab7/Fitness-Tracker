@@ -14,10 +14,31 @@ export default function AddWorkout() {
     const [yogaName, setYogaName] = useState("");
     const [sportName, setSportName] = useState("");
     const [notes, setNotes] = useState();
+    const [availableExercises, setAvailableExercises] = useState([]);
 
     const username = localStorage.getItem('userName');
 
     const navigate = useNavigate();
+
+    // Exercise Options Based on Category
+    const exerciseOptions = {
+        "Strength Training": ["Bench Press", "Deadlift", "Squat", "Pull-ups"],
+        "Cardio": ["Running", "Cycling", "Jump Rope", "Rowing"],
+        "Endurance": ["Long-distance Running", "Swimming", "Hiking", "Rowing"],
+        "Flexibility": ["Hamstring Stretch", "Shoulder Stretch", "Quad Stretch", "Cat-Cow Stretch"],
+        "Powerlifting": ["Squat", "Bench Press", "Deadlift", "Overhead Press"],
+        "Weightlifting": ["Clean and Jerk", "Snatch", "Front Squat", "Power Clean"],
+        "Bodybuilding": ["Bicep Curls", "Tricep Dips", "Leg Press", "Lat Pulldown"],
+        "HIIT": ["Burpees", "Mountain Climbers", "Jump Squats", "High Knees"],
+        "Calisthenics": ["Push-ups", "Dips", "Planks", "Handstands"],
+        "CrossFit": ["Thrusters", "Kettlebell Swings", "Box Jumps", "Wall Balls"],
+        "Plyometrics": ["Box Jumps", "Bounding", "Depth Jumps", "Skater Jumps"],
+        "Yoga": ["Sun Salutation", "Warrior Pose", "Tree Pose", "Downward Dog"],
+        "Pilates": ["The Hundred", "Leg Circles", "Rolling Like a Ball", "Criss-Cross"],
+        "Martial Arts": ["Jab-Cross Combo", "Roundhouse Kick", "Elbow Strike", "Side Kick"],
+        "Sports-Specific Training": ["Basketball Drills", "Football Drills", "Tennis Drills", "Sprint Drills"],
+        "Rehabilitation": ["Resistance Band Exercises", "Joint Mobility Drills", "Foam Rolling", "Gentle Stretching"]
+    };
 
     const handleCategoryChange = (selectedCategory) => {
         setCategory(selectedCategory);
@@ -75,6 +96,11 @@ export default function AddWorkout() {
                 setWeight("");
                 break;
         }
+
+        setAvailableExercises(exerciseOptions[selectedCategory] || []);
+        setName(""); // Reset selected name
+        setYogaName("");
+        setSportName("");
     };
 
     const handleOnSubmit = async (e) => {
@@ -86,8 +112,8 @@ export default function AddWorkout() {
 
         // Ensure category field is filled
         if (!category) {
-            errorMessage = "Please select a category.";
-            isValid = false;
+            alert("Please select a category and an exercise.");
+            return;
         }
 
         if (!notes) {
@@ -202,13 +228,17 @@ export default function AddWorkout() {
                             {category === "Strength Training" || category === "Powerlifting" || category === "Weightlifting" || category === "Bodybuilding" ? (
                                 <>
                                     <Grid item xs={6}>
-                                        <TextField
-                                            label="Exercise Name"
-                                            name="name"
-                                            fullWidth
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                        />
+                                        {/* Exercise Selection */}
+                                        {category && (
+                                            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                                                <InputLabel>Exercise Name</InputLabel>
+                                                <Select value={name} onChange={(e) => setName(e.target.value)}>
+                                                    {availableExercises.map((exercise) => (
+                                                        <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        )}
                                     </Grid>
                                     <Grid item xs={3}>
                                         <TextField
@@ -260,13 +290,17 @@ export default function AddWorkout() {
                             {category === "Cardio" || category === "Endurance" || category === "HIIT" || category === "Cycling" || category === "Running" ? (
                                 <>
                                     <Grid item xs={6}>
-                                        <TextField
-                                            label="Exercise Name"
-                                            name="name"
-                                            fullWidth
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                        />
+                                        {/* Exercise Selection */}
+                                        {category && (
+                                            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                                                <InputLabel>Exercise Name</InputLabel>
+                                                <Select value={name} onChange={(e) => setName(e.target.value)}>
+                                                    {availableExercises.map((exercise) => (
+                                                        <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        )}
                                     </Grid>
                                     <Grid item xs={6}>
                                         <TextField
@@ -296,13 +330,17 @@ export default function AddWorkout() {
                             {category === "Yoga" || category === "Pilates" || category === "Flexibility" || category === "Rehabilitation" ? (
                                 <>
                                     <Grid item xs={6}>
-                                        <TextField
-                                            label="Session Name"
-                                            name="sessionName"
-                                            fullWidth
-                                            value={yogaName}
-                                            onChange={(e) => setYogaName(e.target.value)}
-                                        />
+                                        {/* Exercise Selection */}
+                                        {category && (
+                                            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                                                <InputLabel>Exercise Name</InputLabel>
+                                                <Select value={yogaName} onChange={(e) => setYogaName(e.target.value)}>
+                                                    {availableExercises.map((exercise) => (
+                                                        <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        )}
                                     </Grid>
                                     <Grid item xs={6}>
                                         <TextField
@@ -332,13 +370,17 @@ export default function AddWorkout() {
                             {category === "Sports-Specific Training" ? (
                                 <>
                                     <Grid item xs={6}>
-                                        <TextField
-                                            label="Sport Name"
-                                            name="sportName"
-                                            fullWidth
-                                            value={sportName}
-                                            onChange={(e) => setSportName(e.target.value)}
-                                        />
+                                        {/* Exercise Selection */}
+                                        {category && (
+                                            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                                                <InputLabel>Exercise Name</InputLabel>
+                                                <Select value={sportName} onChange={(e) => setSportName(e.target.value)}>
+                                                    {availableExercises.map((exercise) => (
+                                                        <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        )}
                                     </Grid>
                                     <Grid item xs={3}>
                                         <TextField
@@ -379,13 +421,17 @@ export default function AddWorkout() {
                             {category === "Calisthenics" || category === "CrossFit" || category === "Plyometrics" || category === "Martial Arts" ? (
                                 <>
                                     <Grid item xs={6}>
-                                        <TextField
-                                            label="Exercise Name"
-                                            name="name"
-                                            fullWidth
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                        />
+                                        {/* Exercise Selection */}
+                                        {category && (
+                                            <FormControl fullWidth sx={{ marginBottom: 2 }}>
+                                                <InputLabel>Exercise Name</InputLabel>
+                                                <Select value={name} onChange={(e) => setName(e.target.value)}>
+                                                    {availableExercises.map((exercise) => (
+                                                        <MenuItem key={exercise} value={exercise}>{exercise}</MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        )}
                                     </Grid>
                                     <Grid item xs={3}>
                                         <TextField
