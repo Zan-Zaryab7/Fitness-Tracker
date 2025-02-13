@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Box } from "@mui/material";
+import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Box, Pagination } from "@mui/material";
 import Sidebar from "../Sidebar";
 import Navbar from "../Navbar";
 
 const WorkoutTracker = () => {
     const [workouts, setWorkouts] = useState({});
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 1;
     const navigate = useNavigate();
     const username = localStorage.getItem("userName");
 
@@ -37,10 +39,17 @@ const WorkoutTracker = () => {
         }
     };
 
-
     const handleEdit = (id) => {
         navigate(`/editworkout/${id}`);
     };
+
+    const handleChangePage = (event, newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    const categories = Object.keys(workouts);
+    const totalPages = Math.ceil(categories.length / itemsPerPage);
+    const displayedCategories = categories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className="app">
@@ -58,13 +67,13 @@ const WorkoutTracker = () => {
                         <Typography variant="h6" sx={{ color: "#2c3e50", textAlign: "left", marginTop: 5 }}>
                             No workouts found. Start adding your workouts! <Button onClick={() => navigate('/addworkout')} sx={{ backgroundColor: "transparent" }}>Add Workout</Button>
                         </Typography>
-                    ) : (Object.keys(workouts).map(category => (
+                    ) : (displayedCategories.map(category => (
                         <div key={category} style={{ marginBottom: "30px" }}>
-                            <Typography variant="h5" sx={{ color: "#4C6F7B", marginBottom: 2 }}>{category}</Typography>
+                            <Typography variant="h5" sx={{ color: "#4C6F7B", marginBottom: 2 }}>Category: {category}</Typography>
 
                             {Object.keys(workouts[category]).map(date => (
                                 <div key={date} style={{ marginBottom: "20px", paddingLeft: "20px" }}>
-                                    <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 1 }}>{date}</Typography>
+                                    <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 1 }}>Date: {date}</Typography>
 
                                     <TableContainer component={Paper}>
                                         <Table sx={{ backgroundColor: '#2c3e50' }}>
@@ -177,6 +186,11 @@ const WorkoutTracker = () => {
                             ))}
                         </div>
                     )))}
+                    {totalPages > 1 && (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
+                            <Pagination count={totalPages} page={currentPage} onChange={handleChangePage} color="primary" />
+                        </Box>
+                    )}
                 </Container>
             </div>
         </div>

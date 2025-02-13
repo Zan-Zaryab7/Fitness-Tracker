@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from "@mui/material";
+import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, TablePagination, Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Sidebar from "./Sidebar";
@@ -46,6 +46,12 @@ export default function Dashboard() {
     const [nutritionData, setNutritionData] = useState({});
     // State for Charts Nutritions
     const [currentnutritionData, setCurrentNutritionData] = useState({});
+    // States for nutritions Pagination
+    const [nutritionPage, setNutritionPage] = useState(0);
+    const [nutritionRowsPerPage, setNutritionRowsPerPage] = useState(5);
+    // States for workout Pagination
+    const [workoutCurrentPage, setWorkoutCurrentPage] = useState(1);
+    const workoutitemsPerPage = 1;
 
     /** Fetch Workouts from API */
     useEffect(() => {
@@ -59,6 +65,15 @@ export default function Dashboard() {
         };
         fetchWorkouts();
     }, [username]);
+
+    //Handle change for Workout page
+    const handleChangePage = (event, newPage) => {
+        setWorkoutCurrentPage(newPage);
+    };
+
+    const categories = Object.keys(workouts);
+    const totalPages = Math.ceil(categories.length / workoutitemsPerPage);
+    const displayedCategories = categories.slice((workoutCurrentPage - 1) * workoutitemsPerPage, workoutCurrentPage * workoutitemsPerPage);
 
     /** Fetch Current Nutrition Data from API */
     useEffect(() => {
@@ -74,7 +89,6 @@ export default function Dashboard() {
         fetchTodayNutritionData();
     }, [username]);
 
-
     /** Fetch All Nutrition Data from API */
     useEffect(() => {
         const fetchNutritionData = async () => {
@@ -88,18 +102,29 @@ export default function Dashboard() {
         fetchNutritionData();
     }, [username]);
 
-    /** Calculate Total Nutrition Per Day */
-    const calculateDailyTotals = (date) => {
-        const dailyItems = nutritionData[date] || [];
-        return dailyItems.reduce(
-            (totals, item) => ({
-                calories: totals.calories + (item.calories || 0),
-                protein_g: totals.protein_g + (item.protein_g || 0),
-                carbohydrates_g: totals.carbohydrates_g + (item.carbohydrates_g || 0),
-                fat_g: totals.fat_g + (item.fat_g || 0),
-            }),
-            { calories: 0, protein_g: 0, carbohydrates_g: 0, fat_g: 0 }
-        );
+    // Handle change for Nutrition page
+    const handleNutritionChangePage = (event, newPage) => {
+        setNutritionPage(newPage);
+    };
+
+    // Handle change for Nutrition rows
+    const handleNutritionChangeRowsPerPage = (event) => {
+        setNutritionRowsPerPage(parseInt(event.target.value, 10));
+        setNutritionPage(0);
+    };
+
+    // All Nutritions Data
+    const allData = Object.keys(nutritionData).flatMap(date =>
+        nutritionData[date].map(item => ({ ...item, date }))
+    );
+
+    // Helper function to limit the number
+    const limitValue = (value, maxLength = 10000) => {
+        // If the value is not a number or NaN, return a default value
+        if (isNaN(value)) return 'N/A';
+
+        // Limit the value to the maxLength, if needed, or round to 2 decimal places
+        return Math.min(parseFloat(value), maxLength).toFixed(2); // Example: limit to 2 decimals
     };
 
     /** Compute Total Values Of Current Day */
@@ -119,7 +144,7 @@ export default function Dashboard() {
         );
     };
 
-
+    // Fetch total values for chart
     const totalValues = getTotalValues();
 
     /** Pie Chart Data */
@@ -133,17 +158,22 @@ export default function Dashboard() {
     /** Check if Data is Empty */
     const isDataEmpty = pieChartData.every(item => item.value === 0);
 
-
     return (
+        // Body
         <div className="app">
+            {/* Sidebar */}
             <Sidebar />
             <div className="main-content">
+                {/* Navbar */}
                 <Navbar />
+                {/* Main Content */}
                 <Container sx={{ marginTop: 5 }}>
+                    {/* Dashboard Label */}
                     <Typography variant="h4" sx={{ marginBottom: 3 }}>
                         Fitness Dashboard
                     </Typography>
 
+                    {/* ✅ Chart For Weight & Body-Fat */}
                     <Box sx={{ padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD" }}>
                         <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
                             Weight & Body Fat Over Time
@@ -161,6 +191,7 @@ export default function Dashboard() {
                         </ResponsiveContainer>
                     </Box>
 
+                    {/* ✅ Bar-Chart For Performance Progress */}
                     <Box sx={{ padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD", marginTop: 3 }}>
                         <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
                             Performance Progress
@@ -178,11 +209,9 @@ export default function Dashboard() {
                         </ResponsiveContainer>
                     </Box>
 
-
-
-                    {/* ✅ PIE CHART FOR TOTAL NUTRITION */}
+                    {/* ✅ PIE-CHART FOR TOTAL NUTRITIONS */}
                     <Box sx={{ display: "flex", justifyContent: "space-between", gap: 5, padding: 3, borderRadius: 2 }}>
-                        {/* Left: Bar Chart */}
+                        {/* Left: Bar-Chart */}
                         <Box sx={{ textAlign: "left", padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD" }}>
                             <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
                                 Todays' Nutrition Overview
@@ -203,7 +232,7 @@ export default function Dashboard() {
                             )}
                         </Box>
 
-                        {/* Right: Pie Chart */}
+                        {/* Right: Pie-Chart */}
                         <Box sx={{ textAlign: "left", padding: 3, borderRadius: 2, backgroundColor: "#D9EAFD" }}>
                             <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 2 }}>
                                 Todays' Nutrition Breakdown
@@ -238,13 +267,13 @@ export default function Dashboard() {
                                 <Typography variant="h6" sx={{ color: "#2c3e50", textAlign: "left", marginTop: 5 }}>
                                     No workouts found. Start adding your workouts! <Button onClick={() => navigate('/addworkout')} sx={{ backgroundColor: "transparent" }}>Add Workout</Button>
                                 </Typography>
-                            ) : (Object.keys(workouts).map(category => (
+                            ) : (displayedCategories.map(category => (
                                 <div key={category} style={{ marginBottom: "30px" }}>
-                                    <Typography variant="h5" sx={{ color: "#4C6F7B", marginBottom: 2 }}>{category}</Typography>
+                                    <Typography variant="h5" sx={{ color: "#4C6F7B", marginBottom: 2 }}>Category: {category}</Typography>
 
                                     {Object.keys(workouts[category]).map(date => (
                                         <div key={date} style={{ marginBottom: "20px", paddingLeft: "20px" }}>
-                                            <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 1 }}>{date}</Typography>
+                                            <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 1 }}>Date: {date}</Typography>
 
                                             <TableContainer component={Paper}>
                                                 <Table sx={{ backgroundColor: '#2c3e50' }}>
@@ -340,6 +369,11 @@ export default function Dashboard() {
                                     ))}
                                 </div>
                             )))}
+                            {totalPages > 1 && (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
+                                    <Pagination count={totalPages} page={workoutCurrentPage} onChange={handleChangePage} color="primary" />
+                                </Box>
+                            )}
                         </Box>
 
                         {/* Nutrition Tracker */}
@@ -347,54 +381,47 @@ export default function Dashboard() {
                             <Typography sx={{ color: "#2c3e50", marginBottom: 2, fontSize: 34 }}>
                                 Nutrition Tracker
                             </Typography>
-                            {Object.keys(nutritionData).map(date => {
-                                const totals = calculateDailyTotals(date);
-                                return (
-                                    <div key={date} style={{ marginBottom: "30px" }}>
-                                        <Typography variant="h6" sx={{ color: "#2c3e50", marginBottom: 1 }}>{date}</Typography>
-                                        <TableContainer component={Paper}>
-                                            <Table sx={{ backgroundColor: '#2c3e50' }}>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell sx={{ color: '#fff' }}>Meal Type</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>Food Name</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>Quantity</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>Calories</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>Protein (g)</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>Carbs (g)</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>Fat (g)</TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    <TableRow>
-                                                        <TableCell sx={{ fontWeight: 'bold', color: '#fff' }}>Total</TableCell>
-                                                        <TableCell></TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>{totals.calories.toFixed(2)}</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>{totals.protein_g.toFixed(2)}</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>{totals.carbohydrates_g.toFixed(2)}</TableCell>
-                                                        <TableCell sx={{ color: '#fff' }}>{totals.fat_g.toFixed(2)}</TableCell>
-                                                        <TableCell></TableCell>
-                                                    </TableRow>
+                            <TableContainer component={Paper}>
+                                <Table sx={{ backgroundColor: '#2c3e50' }}>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell sx={{ color: '#fff' }}>Date</TableCell>
+                                            <TableCell sx={{ color: '#fff' }}>Meal Type</TableCell>
+                                            <TableCell sx={{ color: '#fff' }}>Food Name</TableCell>
+                                            <TableCell sx={{ color: '#fff' }}>Quantity</TableCell>
+                                            <TableCell sx={{ color: '#fff' }}>Calories</TableCell>
+                                            <TableCell sx={{ color: '#fff' }}>Protein (g)</TableCell>
+                                            <TableCell sx={{ color: '#fff' }}>Carbs (g)</TableCell>
+                                            <TableCell sx={{ color: '#fff' }}>Fat (g)</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {allData.slice(nutritionPage * nutritionRowsPerPage, nutritionPage * nutritionRowsPerPage + nutritionRowsPerPage).map(item => (
 
-                                                    {/* ✅ PRINT EACH FOOD ITEM */}
-                                                    {nutritionData[date].map(item => (
-                                                        <TableRow key={item._id}>
-                                                            <TableCell sx={{ color: '#fff' }}>{item.mealType}</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>{item.food_name}</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>{item.quantity}</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>{item.calories.toFixed(2)}</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>{item.protein_g.toFixed(2)}</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>{item.carbohydrates_g.toFixed(2)}</TableCell>
-                                                            <TableCell sx={{ color: '#fff' }}>{item.fat_g.toFixed(2)}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-
-                                            </Table>
-                                        </TableContainer>
-                                    </div>
-                                );
-                            })}
+                                            <TableRow key={item._id}>
+                                                <TableCell sx={{ color: '#fff' }}>{item.date}</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}>{item.mealType}</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}>{item.food_name}</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}>{limitValue(item.quantity)}</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}>{limitValue(item.calories)}</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}>{limitValue(item.protein_g)}</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}>{limitValue(item.carbohydrates_g)}</TableCell>
+                                                <TableCell sx={{ color: '#fff' }}>{limitValue(item.fat_g)}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25]}
+                                component="div"
+                                count={allData.length}
+                                rowsPerPage={nutritionRowsPerPage}
+                                page={nutritionPage}
+                                onPageChange={handleNutritionChangePage}
+                                onRowsPerPageChange={handleNutritionChangeRowsPerPage}
+                                sx={{ color: '#fff', backgroundColor: '#2c3e50' }}
+                            />
                         </Box>
                     </Box>
                 </Container>

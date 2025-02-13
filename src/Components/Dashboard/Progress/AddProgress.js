@@ -17,7 +17,7 @@ export default function AddProgress() {
     const [thighs, setThighs] = useState("");
     const [arms, setArms] = useState("");
     const [metricType, setMetricType] = useState("Run Time");
-    const [metricValue, setMetricValue] = useState("");
+    const [metricValue, setMetricValue] = useState(1);
 
     // Handle form submission
     const handleSubmit = async (e) => {
@@ -134,7 +134,7 @@ export default function AddProgress() {
                                     let defaultValue = 0;
                                     switch (selectedType) {
                                         case "Run Time":
-                                            defaultValue = 10; // Example default value in seconds
+                                            defaultValue = 10; // Example default value in mintes
                                             break;
                                         case "Lifting Weights":
                                             defaultValue = 20; // Example default weight in kg
@@ -153,7 +153,7 @@ export default function AddProgress() {
                                 fullWidth
                                 sx={{ marginBottom: 2 }}
                             >
-                                <MenuItem value="Run Time">Run Time (seconds)</MenuItem>
+                                <MenuItem value="Run Time">Run Time (minutes)</MenuItem>
                                 <MenuItem value="Lifting Weights">Lifting Weights (kg)</MenuItem>
                                 <MenuItem value="Cycling Distance">Cycling Distance (km)</MenuItem>
                                 <MenuItem value="Push-ups">Push-ups (reps)</MenuItem>
